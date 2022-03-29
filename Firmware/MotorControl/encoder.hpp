@@ -13,6 +13,11 @@ class Encoder;
 class Encoder : public ODriveIntf::EncoderIntf {
 public:
     static constexpr uint32_t MODE_FLAG_ABS = 0x100;
+
+    uint8_t sincos_subphase_count = 7;
+    uint8_t sincos_subphase_counter = 0;
+    float sincos_subphase_previous = 0.0;
+
     static constexpr std::array<float, 6> hall_edge_defaults = 
         {0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
 

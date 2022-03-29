@@ -716,15 +716,40 @@ bool Encoder::update() {
             }
         } break;
 
-        case MODE_SINCOS: {
-            float phase = fast_atan2(sincos_sample_s_, sincos_sample_c_);
-            int fake_count = (int)(1000.0f * phase);
-            //CPR = 6283 = 2pi * 1k
+        case MODE_SINCOS:
+        {
+          float sincos_subphase = fast_atan2(sincos_sample_s_, sincos_sample_c_);
 
-            delta_enc = fake_count - count_in_cpr_;
-            delta_enc = mod(delta_enc, 6283);
-            if (delta_enc > 6283/2)
-                delta_enc -= 6283;
+          if ((sincos_subphase - sincos_subphase_previous) < (-3 * M_PI / 2))
+          {
+            if (sincos_subphase_counter < sincos_subphase_count) {
+              sincos_subphase_counter++;
+            } else {
+              sincos_subphase_counter = 0;
+            }
+          }
+
+          if ((sincos_subphase - sincos_subphase_previous) > (3 * M_PI / 2))
+          {
+            if (sincos_subphase_counter > 0) {
+              sincos_subphase_counter--;
+            } else {
+              sincos_subphase_counter = sincos_subphase_count;
+            }
+          }
+
+          sincos_subphase_previous = sincos_subphase;
+
+          float phase = (6.283f * sincos_subphase_counter + sincos_subphase) / (sincos_subphase_count - 1);
+
+          int fake_count = (int)(1000.0f * phase);
+          //CPR = 6283 = 2pi * 1k
+
+          delta_enc = fake_count - count_in_cpr_;
+          delta_enc = mod(delta_enc, 6283);
+          if (delta_enc > 6283 / 2) {
+            delta_enc -= 6283;
+          }
         } break;
         
         case MODE_SPI_ABS_RLS:
