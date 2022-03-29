@@ -251,9 +251,18 @@ float get_adc_voltage(Stm32Gpio gpio) {
     return get_adc_relative_voltage(gpio) * adc_ref_voltage;
 }
 
+float sincos_min = 0.1f;
+float sincos_max = 3.2f;
+float sincos_min_voltage = 1.8f;
+float sincos_max_voltage = 3.2f;
+
+float scale_adc_relative(float relative) {
+  return (relative - 0.4f) * 1.5f;
+}
+
 float get_adc_relative_voltage(Stm32Gpio gpio) {
     const uint16_t channel = channel_from_gpio(gpio);
-    return get_adc_relative_voltage_ch(channel);
+    return scale_adc_relative(get_adc_relative_voltage_ch(channel));
 }
 
 // @brief Given a GPIO_port and pin return the associated adc_channel.

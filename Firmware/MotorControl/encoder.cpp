@@ -473,6 +473,18 @@ static bool decode_hall(uint8_t hall_state, int32_t* hall_cnt) {
     }
 }
 
+/*
+float sincos_min = 0.1f;
+float sincos_max = 3.2f;
+float sincos_min_voltage = 1.8f;
+float sincos_max_voltage = 3.2f;
+
+float scale_adc_voltage(float voltage) {
+  float scale_factor = sincos_max / (sincos_max_voltage - sincos_min_voltage);
+  return scale_factor * (voltage - sincos_min_voltage) + sincos_min;
+}
+*/
+
 void Encoder::sample_now() {
     switch (mode_) {
         case MODE_INCREMENTAL: {
@@ -722,7 +734,7 @@ bool Encoder::update() {
 
           if ((sincos_subphase - sincos_subphase_previous) < (-3 * M_PI / 2))
           {
-            if (sincos_subphase_counter < sincos_subphase_count) {
+            if (sincos_subphase_counter < sincos_subphase_count - 1) {
               sincos_subphase_counter++;
             } else {
               sincos_subphase_counter = 0;
@@ -734,13 +746,13 @@ bool Encoder::update() {
             if (sincos_subphase_counter > 0) {
               sincos_subphase_counter--;
             } else {
-              sincos_subphase_counter = sincos_subphase_count;
+              sincos_subphase_counter = sincos_subphase_count - 1;
             }
           }
 
           sincos_subphase_previous = sincos_subphase;
 
-          float phase = (6.283f * sincos_subphase_counter + sincos_subphase) / (sincos_subphase_count - 1);
+          float phase = (6.283f * sincos_subphase_counter + sincos_subphase) / (sincos_subphase_count);
 
           int fake_count = (int)(1000.0f * phase);
           //CPR = 6283 = 2pi * 1k
