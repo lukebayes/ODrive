@@ -186,6 +186,28 @@ void start_adc_pwm() {
 // @brief ADC1 measurements are written to this buffer by DMA
 uint16_t adc_measurements_[ADC_CHANNEL_COUNT] = { 0 };
 
+#define ADC_AVG_SIZE 2
+uint8_t adc_avg_indices[ADC_CHANNEL_COUNT] = { 0 };
+uint16_t adc_avg_cache[ADC_CHANNEL_COUNT][ADC_AVG_SIZE] = { 0 };
+
+uint16_t get_avg_adc_measurement(uint8_t channel) {
+  uint8_t index = adc_avg_indices[channel];
+  adc_avg_cache[channel][index] = adc_measurements_[channel];
+  index++;
+  if (index >= ADC_AVG_SIZE) {
+    index = 0;
+  }
+  adc_avg_indices[channel] = index;
+
+  uint32_t sum = 0;
+  for (uint8_t i = 0; i < ADC_AVG_SIZE; i++) {
+    sum += adc_avg_cache[channel][i];
+  }
+
+  uint16_t avg = sum / ADC_AVG_SIZE;
+  return avg;
+}
+
 // @brief Starts the general purpose ADC on the ADC1 peripheral.
 // The measured ADC voltages can be read with get_adc_voltage().
 //
@@ -251,18 +273,9 @@ float get_adc_voltage(Stm32Gpio gpio) {
     return get_adc_relative_voltage(gpio) * adc_ref_voltage;
 }
 
-float sincos_min = 0.1f;
-float sincos_max = 3.2f;
-float sincos_min_voltage = 1.8f;
-float sincos_max_voltage = 3.2f;
-
-float scale_adc_relative(float relative) {
-  return (relative - 0.4f) * 1.5f;
-}
-
 float get_adc_relative_voltage(Stm32Gpio gpio) {
     const uint16_t channel = channel_from_gpio(gpio);
-    return scale_adc_relative(get_adc_relative_voltage_ch(channel));
+    return get_adc_relative_voltage_ch(channel);
 }
 
 // @brief Given a GPIO_port and pin return the associated adc_channel.
@@ -312,7 +325,8 @@ uint16_t channel_from_gpio(Stm32Gpio gpio) {
 // returns -1.0f if the channel is not valid.
 float get_adc_relative_voltage_ch(uint16_t channel) {
     if (channel < ADC_CHANNEL_COUNT)
-        return (float)adc_measurements_[channel] / adc_full_scale;
+        return (float)get_avg_adc_measurement(channel) / adc_full_scale;
+        // return (float)adc_measurements_[channel] / adc_full_scale;
     else
         return -1.0f;
 }

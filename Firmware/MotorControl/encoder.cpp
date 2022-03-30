@@ -473,18 +473,6 @@ static bool decode_hall(uint8_t hall_state, int32_t* hall_cnt) {
     }
 }
 
-/*
-float sincos_min = 0.1f;
-float sincos_max = 3.2f;
-float sincos_min_voltage = 1.8f;
-float sincos_max_voltage = 3.2f;
-
-float scale_adc_voltage(float voltage) {
-  float scale_factor = sincos_max / (sincos_max_voltage - sincos_min_voltage);
-  return scale_factor * (voltage - sincos_min_voltage) + sincos_min;
-}
-*/
-
 void Encoder::sample_now() {
     switch (mode_) {
         case MODE_INCREMENTAL: {
