@@ -186,7 +186,7 @@ void start_adc_pwm() {
 // @brief ADC1 measurements are written to this buffer by DMA
 uint16_t adc_measurements_[ADC_CHANNEL_COUNT] = { 0 };
 
-#define ADC_AVG_SIZE 2
+#define ADC_AVG_SIZE 3
 uint8_t adc_avg_indices[ADC_CHANNEL_COUNT] = { 0 };
 uint16_t adc_avg_cache[ADC_CHANNEL_COUNT][ADC_AVG_SIZE] = { 0 };
 

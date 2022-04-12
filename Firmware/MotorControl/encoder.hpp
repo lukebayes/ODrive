@@ -14,7 +14,8 @@ class Encoder : public ODriveIntf::EncoderIntf {
 public:
     static constexpr uint32_t MODE_FLAG_ABS = 0x100;
 
-    uint8_t sincos_subphase_count = 7;
+    // TODO(lbayes): Make this a config variable 
+    uint8_t sincos_subphase_count = 16;  // (GL40: 7)
     uint8_t sincos_subphase_counter = 0;
     float sincos_subphase_previous = 0.0;
 
