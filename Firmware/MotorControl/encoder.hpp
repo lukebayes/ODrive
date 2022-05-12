@@ -12,10 +12,8 @@ class Encoder;
 
 class Encoder : public ODriveIntf::EncoderIntf {
 public:
-    static constexpr uint32_t MODE_FLAG_ABS = 0x100;
-
     // TODO(lbayes): Make this a config variable 
-    uint8_t sincos_subphase_count = 16;  // (GL40: 7)
+    uint8_t sincos_subphase_count = 16;  // (GL60 & GL80: 16, GL40: 7)
     uint8_t sincos_subphase_counter = 0;
     float sincos_subphase_previous = 0.0;
 
@@ -55,7 +53,7 @@ public:
         Encoder* parent = nullptr;
         void set_use_index(bool value) { use_index = value; parent->set_idx_subscribe(); }
         void set_find_idx_on_lockin_only(bool value) { find_idx_on_lockin_only = value; parent->set_idx_subscribe(); }
-        void set_abs_spi_cs_gpio_pin(uint16_t value) { abs_spi_cs_gpio_pin = value; parent->abs_spi_cs_pin_init(); }
+        void set_abs_spi_cs_gpio_pin(uint16_t value) { abs_spi_cs_gpio_pin = value; parent->spi_cs_pin_init(); }
         void set_pre_calibrated(bool value) { pre_calibrated = value; parent->check_pre_calibrated(); }
         void set_bandwidth(float value) { bandwidth = value; parent->update_pll_gains(); }
     };
@@ -141,7 +139,7 @@ public:
 
     bool abs_spi_start_transaction();
     void abs_spi_cb(bool success);
-    void abs_spi_cs_pin_init();
+    void spi_cs_pin_init();
     bool abs_spi_pos_updated_ = false;
     Mode mode_ = MODE_INCREMENTAL;
     Stm32Gpio abs_spi_cs_gpio_;

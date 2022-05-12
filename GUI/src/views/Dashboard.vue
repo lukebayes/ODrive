@@ -226,6 +226,9 @@ let odriveEnums = {
       value:  2,
     },
     {
+      text: "8A Incremental",
+      value: 3,
+    {
       text: "CUI Absolute",
       value: 256,
     },

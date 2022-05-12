@@ -57,10 +57,10 @@ void Encoder::setup() {
         abs_spi_dma_tx_[0] = 0x0000;
     }
 
-    if(mode_ & MODE_FLAG_ABS){
-        abs_spi_cs_pin_init();
+    if(enc_mode_is_spi(mode_)) {
+        spi_cs_pin_init();
 
-        if (axis_->controller_.config_.anticogging.pre_calibrated) {
+        if (mode_ & MODE_FLAG_ABS && axis_->controller_.config_.anticogging.pre_calibrated) {
             axis_->controller_.anticogging_valid_ = true;
         }
     }
@@ -488,6 +488,7 @@ void Encoder::sample_now() {
             sincos_sample_c_ = get_adc_relative_voltage(get_gpio(config_.sincos_gpio_pin_cos)) - 0.5f;
         } break;
 
+        case MODE_SPI_INC_8A:
         case MODE_SPI_ABS_AMS:
         case MODE_SPI_ABS_CUI:
         case MODE_SPI_ABS_AEAT:
@@ -559,7 +560,8 @@ uint8_t cui_parity(uint16_t v) {
 }
 
 void Encoder::abs_spi_cb(bool success) {
-    uint16_t pos;
+    // TODO(lbayes): Was uint16_t, make sure originals still work
+    uint32_t pos;
 
     if (!success) {
         goto done;
@@ -594,6 +596,15 @@ void Encoder::abs_spi_cb(bool success) {
             pos = (rawVal >> 2) & 0x3fff;
         } break;
 
+        case MODE_SPI_INC_8A: {
+            uint32_t rawVal = abs_spi_dma_rx_[0];
+            // check if parity is correct
+            // if (cui_parity(rawVal)) {
+                // goto done;
+            // }
+            pos = rawVal & 0x3fff;
+        } break;
+
         default: {
            set_error(ERROR_UNSUPPORTED_ENCODER_MODE);
            goto done;
@@ -610,7 +621,7 @@ done:
     Stm32SpiArbiter::release_task(&spi_task_);
 }
 
-void Encoder::abs_spi_cs_pin_init(){
+void Encoder::spi_cs_pin_init(){
     // Decode and init cs pin
 #if HW_VERSION_MAJOR == 4
     if (mode_ == MODE_SPI_ABS_MA732)
@@ -716,6 +727,7 @@ bool Encoder::update() {
             }
         } break;
 
+        case MODE_SPI_INC_8A:
         case MODE_SINCOS:
         {
           float sincos_subphase = fast_atan2(sincos_sample_s_, sincos_sample_c_);

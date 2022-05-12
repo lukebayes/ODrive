@@ -63,6 +63,8 @@ constexpr float one_by_sqrt3 = 0.57735026919f;
 constexpr float two_by_sqrt3 = 1.15470053838f;
 constexpr float sqrt3_by_2 = 0.86602540378f;
 
+constexpr uint32_t MODE_FLAG_ABS = 0x100;
+
 // Function prototypes for implementations in utils.cpp
 std::tuple<float, float, float, bool> SVM(float alpha, float beta);
 float fast_atan2(float y, float x);
@@ -156,3 +158,7 @@ inline int mod(const int dividend, const int divisor){
     if (r < 0) r += divisor;
     return r;
 }
+
+// Return true if the provided encoder mode uses SPI.
+// Had to add this, because we now have an incremental SPI encoder.
+bool enc_mode_is_spi(uint16_t mode);

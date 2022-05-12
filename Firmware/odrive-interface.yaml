@@ -1566,6 +1566,7 @@ valuetypes:
       INCREMENTAL:
       HALL:
       SINCOS:
+      SPI_INC_8A:
       SPI_ABS_CUI:
         value: 0x100
         doc: Compatible with CUI AMT23xx

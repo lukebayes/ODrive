@@ -1,4 +1,5 @@
 
+#include <autogen/interfaces.hpp>
 #include <utils.hpp>
 #include <board.h>
 
@@ -188,3 +189,7 @@ void delay_us(uint32_t us)
     }
 }
 
+// @brief: Return true if the provided encoder mode uses SPI.
+bool enc_mode_is_spi(uint16_t mode) {
+  return mode & MODE_FLAG_ABS || mode == ODriveIntf::EncoderIntf::MODE_SPI_INC_8A;
+}

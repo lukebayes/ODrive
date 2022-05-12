@@ -3,6 +3,7 @@
 #include "odrive_main.h"
 #include "nvm_config.hpp"
 
+#include "utils.hpp"
 #include "usart.h"
 #include "freertos_vars.h"
 #include "usb_device.h"
@@ -529,8 +530,8 @@ static void rtos_main(void*) {
 
     // Set up the CS pins for absolute encoders (TODO: move to GPIO init switch statement)
     for(auto& axis : axes){
-        if(axis.encoder_.config_.mode & Encoder::MODE_FLAG_ABS){
-            axis.encoder_.abs_spi_cs_pin_init();
+        if (enc_mode_is_spi(axis.encoder_.config_.mode)) {
+            axis.encoder_.spi_cs_pin_init();
         }
     }
 
