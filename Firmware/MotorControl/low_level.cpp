@@ -325,7 +325,6 @@ uint16_t channel_from_gpio(Stm32Gpio gpio) {
 // returns -1.0f if the channel is not valid.
 float get_adc_relative_voltage_ch(uint16_t channel) {
     if (channel < ADC_CHANNEL_COUNT)
-        // return (float)get_avg_adc_measurement(channel) / adc_full_scale;
         return (float)adc_measurements_[channel] / adc_full_scale;
     else
         return -1.0f;
